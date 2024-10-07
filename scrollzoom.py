@@ -19,13 +19,14 @@ class program():
         self.binds()
         self.interface.pack()
         self.populate_grid()
-        self.place_char()
+        # self.place_char()
         self.app.mainloop()
     
     def binds(self):
         self.app.bind("<Button-3>", lambda event: self.set_anchor(event))
         self.app.bind("<B3-Motion>", lambda event: self.move_map(event))
         self.app.bind("<Up>", lambda event: self.move(event))
+        self.app.bind("<MouseWheel>", lambda event: self.zoom(event))
         self.app.bind("<Down>", lambda event: self.move(event))
         self.app.bind("<Right>", lambda event: self.move(event))
         self.app.bind("<Left>", lambda event: self.move(event))
@@ -38,6 +39,23 @@ class program():
         for square in self.squares.values():
             self.interface.move(square,dx,dy)
         cor.anch_xy[0], cor.anch_xy[1] = (event.x), (event.y)
+        
+    def zoom(self, event):
+        self.set_anchor(event)
+        delta = {
+            120: 1,
+            -120: -1
+        }[event.delta]
+        for square in self.squares.values():
+            # print(self.interface.coords(square)[0
+            x0, x1, y0, y1 = self.interface.coords(square)
+            print(square)
+            quit()
+            dx, dy = (1.2*delta)*(x - cor.anch_xy[0]), (1.2*delta)*(y - cor.anch_xy[1])
+            self.interface.coords(square)[0] += dx
+           
+            
+        
         
     def populate_grid(self):
         colors = ["cyan", "green", "green"]
