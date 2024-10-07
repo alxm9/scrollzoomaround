@@ -61,7 +61,7 @@ class program():
             "Down": [0,25],
             "Left": [-25, 0],
             "Right": [25,0]
-        }[event.keysym] 
+        }[event.keysym]
         dx, dy = keys[0], keys[1]
         self.interface.move(self.squares["char"], dx,dy)
 
