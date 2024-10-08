@@ -42,21 +42,20 @@ class program():
         
     def zoom(self, event):
         self.set_anchor(event)
+        print(event)
         delta = {
             120: 1,
             -120: -1
         }[event.delta]
+        print(delta)
         for square in self.squares.values():
-            # print(self.interface.coords(square)[0
-            x0, x1, y0, y1 = self.interface.coords(square)
-            print(square)
-            quit()
-            dx, dy = (1.2*delta)*(x - cor.anch_xy[0]), (1.2*delta)*(y - cor.anch_xy[1])
-            self.interface.coords(square)[0] += dx
+            x0, y0, x1, y1 = self.interface.coords(square)
+            x0 += (0.25*delta)*(x0 - cor.anch_xy[0])
+            x1 += (0.25*delta)*(x1 - cor.anch_xy[0])
+            y0 += (0.25*delta)*(y0 - cor.anch_xy[1])
+            y1 += (0.25*delta)*(y1 - cor.anch_xy[1])
+            self.interface.coords(square, x0, y0, x1, y1)
            
-            
-        
-        
     def populate_grid(self):
         colors = ["cyan", "green", "green"]
         for row in range(1,41):
@@ -82,10 +81,6 @@ class program():
         }[event.keysym] 
         dx, dy = keys[0], keys[1]
         self.interface.move(self.squares["char"], dx,dy)
-
-    
-
-
 
 test = program()
 
