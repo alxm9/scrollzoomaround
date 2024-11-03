@@ -1,12 +1,22 @@
 from tkinter import *
 from dataclasses import dataclass
 import random
+from timeit import default_timer as timer
+from multiprocessing import Pool
 
 @dataclass
 class coords:
     anch_xy: list
     
 cor = coords([0,0])
+
+def zoom_pool(cor_list):
+    square,x0,y0,x1,y1,delta = cor_list[0],cor_list[1][0], cor_list[1][1], cor_list[1][2], cor_list[1][3], cor_list[2]
+    x0 += (0.25*delta)*(x0 - cor.anch_xy[0])
+    x1 += (0.25*delta)*(x1 - cor.anch_xy[0])
+    y0 += (0.25*delta)*(y0 - cor.anch_xy[1])
+    y1 += (0.25*delta)*(y1 - cor.anch_xy[1])
+    return (square,x0,y0,x1,y1)
 
 class program():
     def __init__(self):
@@ -26,7 +36,8 @@ class program():
         self.app.bind("<Button-3>", lambda event: self.set_anchor(event))
         self.app.bind("<B3-Motion>", lambda event: self.move_map(event))
         self.app.bind("<Up>", lambda event: self.move(event))
-        self.app.bind("<MouseWheel>", lambda event: self.zoom(event))
+        self.app.bind("<Button-4>", lambda event: self.zoom(event))
+        self.app.bind("<Button-5>", lambda event: self.zoom(event))
         self.app.bind("<Down>", lambda event: self.move(event))
         self.app.bind("<Right>", lambda event: self.move(event))
         self.app.bind("<Left>", lambda event: self.move(event))
@@ -41,20 +52,29 @@ class program():
         cor.anch_xy[0], cor.anch_xy[1] = (event.x), (event.y)
         
     def zoom(self, event):
+        start = timer()
         self.set_anchor(event)
-        print(event)
+        # print(event)
         delta = {
-            120: 1,
-            -120: -1
-        }[event.delta]
-        print(delta)
-        for square in self.squares.values():
-            x0, y0, x1, y1 = self.interface.coords(square)
-            x0 += (0.25*delta)*(x0 - cor.anch_xy[0])
-            x1 += (0.25*delta)*(x1 - cor.anch_xy[0])
-            y0 += (0.25*delta)*(y0 - cor.anch_xy[1])
-            y1 += (0.25*delta)*(y1 - cor.anch_xy[1])
-            self.interface.coords(square, x0, y0, x1, y1)
+            4: 1,
+            5: -1
+        }[event.num]
+        with Pool(5) as workers:
+            # for square in self.squares.values():
+                # print("THIS IS IT: ", self.interface.coords(square))
+            results = workers.map(zoom_pool, [(square,self.interface.coords(square),delta) for square in self.squares.values()] )
+        for result in results:
+            self.interface.coords(*result)
+        # print(delta)
+        # for square in self.squares.values():
+            # x0, y0, x1, y1 = self.interface.coords(square)
+            # x0 += (0.25*delta)*(x0 - cor.anch_xy[0])
+            # x1 += (0.25*delta)*(x1 - cor.anch_xy[0])
+            # y0 += (0.25*delta)*(y0 - cor.anch_xy[1])
+            # y1 += (0.25*delta)*(y1 - cor.anch_xy[1])
+            # self.interface.coords(square, x0, y0, x1, y1)
+        end = timer()
+        print(end - start)
            
     def populate_grid(self):
         colors = ["cyan", "green", "green"]
